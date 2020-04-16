@@ -168,6 +168,7 @@ video {
 	" id = " + device.deviceId);
 	return device.kind === 'videoinput';
 	});
+	alert(JSON.stringify(cams));
 	})
 	.catch(function(err) {
 	console.log(err.name + ": " + err.message);
