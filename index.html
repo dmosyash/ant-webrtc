@@ -229,14 +229,23 @@ video {
 			//   var updatedConstraints = {
 			//   facingMode: {exact: 'user'}
 			//   }
-			  globalStream.getVideoTracks()[0].applyConstraints({deviceId: cams[1].deviceId}).then(function (e) {
-			//   alert('Camera switched');
-			  alert(globalStream.getVideoTracks()[0].getSettings().facingMode);
-			  videoElement.srcObject = globalStream;
-			  }, function(e) {
-			  console.log('error: ', e);
-			  alert(e.toString());
-			  });
+
+				mediaConstraints.video = {deviceId: cams[1].deviceId};
+				navigator.mediaDevices.getUserMedia(mediaConstraints).then(function(stream) {
+				globalStream = stream;
+				videoElement.srcObject = stream;
+				}, function(e) {
+				console.log(e.message);
+				})
+
+			//   globalStream.getVideoTracks()[0].applyConstraints({deviceId: cams[1].deviceId}).then(function (e) {
+			// //   alert('Camera switched');
+			//   alert(globalStream.getVideoTracks()[0].getSettings().facingMode);
+			//   videoElement.srcObject = globalStream;
+			//   }, function(e) {
+			//   console.log('error: ', e);
+			//   alert(e.toString());
+			//   });
   		}
   		else {
   			chbx.checked = true;
