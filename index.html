@@ -236,7 +236,7 @@ video {
 				globalStream = stream;
 				videoElement.srcObject = stream;
 				}, function(e) {
-				console.log(e.message);
+				alert(e);
 				})
 
 			//   globalStream.getVideoTracks()[0].applyConstraints({deviceId: cams[1].deviceId}).then(function (e) {
