@@ -225,12 +225,11 @@ video {
   		else if(screen_share_with_camera_checkbox == chbx){
   			// webRTCAdaptor.switchDesktopCaptureWithCamera(streamId);
 			  let supports = navigator.mediaDevices.getSupportedConstraints();
-			  alert(cams[1].deviceId);
 			//   var updatedConstraints = {
 			//   facingMode: {exact: 'user'}
 			//   }
 
-				mediaConstraints.video = {deviceId: cams[1].deviceId};
+				mediaConstraints.video = {facingMode: 'environment'};
 				navigator.mediaDevices.getUserMedia(mediaConstraints).then(function(stream) {
 					alert(stream.getVideoTracks()[0]);
 				globalStream = stream;
