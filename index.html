@@ -205,7 +205,13 @@ video {
   			webRTCAdaptor.switchDesktopCapture(streamId);
   		}
   		else if(screen_share_with_camera_checkbox == chbx){
-  			webRTCAdaptor.switchDesktopCaptureWithCamera(streamId);
+  			// webRTCAdaptor.switchDesktopCaptureWithCamera(streamId);
+			  var updatedConstraints = {
+			  facingMode: {exact: 'environment'}
+			  }
+			  webRTCAdaptor.localStream.getVideoTracks()[0].applyConstraints(updatedConstraints).then(function () {
+			  alert('Camera switched');
+			  });
   		}
   		else {
   			chbx.checked = true;
@@ -270,7 +276,7 @@ video {
 	};
 	
 	var mediaConstraints = {
-	video : {facingMode: 'environment'},
+	video : true,
 		audio : true
 	};
 
