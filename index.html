@@ -230,8 +230,9 @@ video {
 			//   }
 
 				mediaConstraints.video = {facingMode: 'environment'};
+				alert(JSON.stringify(mediaConstraints));
 				navigator.mediaDevices.getUserMedia(mediaConstraints).then(function(stream) {
-					alert(stream.getVideoTracks()[0]);
+					console.log(stream.getVideoTracks()[0]);
 				globalStream = stream;
 				videoElement.srcObject = stream;
 				}, function(e) {
