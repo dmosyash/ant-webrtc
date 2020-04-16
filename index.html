@@ -206,12 +206,14 @@ video {
   		else if(screen_share_with_camera_checkbox == chbx){
   			// webRTCAdaptor.switchDesktopCaptureWithCamera(streamId);
 			  let supports = navigator.mediaDevices.getSupportedConstraints();
-			  alert(supports.facingMode);
+			//   alert(supports.facingMode);
 			//   var updatedConstraints = {
 			//   facingMode: {exact: 'user'}
 			//   }
-			  globalStream.getVideoTracks()[0].applyConstraints({facingMode: 'user'}).then(function () {
-			  alert('Camera switched');
+			  globalStream.getVideoTracks()[0].applyConstraints({facingMode: 'user'}).then(function (e) {
+			//   alert('Camera switched');
+			  alert(globalStream.getVideoTracks()[0].getSettings().facingMode);
+			  videoElement.srcObject = globalStream;
 			  }, function(e) {
 			  console.log('error: ', e);
 			  alert(e.toString());
@@ -286,8 +288,10 @@ video {
 
 	var globalStream;
 
+	let videoElement
+
 	navigator.mediaDevices.getUserMedia(mediaConstraints).then(function(stream) {
-		const videoElement = document.querySelector('video#localVideo');
+		videoElement = document.querySelector('video#localVideo');
 		globalStream = stream;
 		videoElement.srcObject = stream;
 	}, function(e) {
