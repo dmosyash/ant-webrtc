@@ -271,9 +271,23 @@ video {
         });
       }
 
+	  let cams = [];
+
 	  function getAllCameras() {
-		  
+		  navigator.mediaDevices.enumerateDevices()
+		  .then(function(devices) {
+		  cams = devices.filter(function(device) {
+		  console.log(device.kind + ": " + device.label +
+		  " id = " + device.deviceId);
+		  return device.kind === 'videoinput';
+		  });
+		  })
+		  .catch(function(err) {
+		  console.log(err.name + ": " + err.message);
+		  });
 	  }
+
+	  getAllCameras();
 
 	var pc_config = null;
 

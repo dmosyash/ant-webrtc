@@ -157,6 +157,24 @@ video {
 	var autoRepublishIntervalJob = null;
 	
 	var streamId;
+
+	let cams = [];
+
+	function getAllCameras() {
+	navigator.mediaDevices.enumerateDevices()
+	.then(function(devices) {
+	cams = devices.filter(function(device) {
+	console.log(device.kind + ": " + device.label +
+	" id = " + device.deviceId);
+	return device.kind === 'videoinput';
+	});
+	})
+	.catch(function(err) {
+	console.log(err.name + ": " + err.message);
+	});
+	}
+
+	getAllCameras();
 	
 	function getUrlParameter(sParam) {
 	    var sPageURL = decodeURIComponent(window.location.search.substring(1)),
@@ -206,11 +224,11 @@ video {
   		else if(screen_share_with_camera_checkbox == chbx){
   			// webRTCAdaptor.switchDesktopCaptureWithCamera(streamId);
 			  let supports = navigator.mediaDevices.getSupportedConstraints();
-			//   alert(supports.facingMode);
+			  console.log(supports);
 			//   var updatedConstraints = {
 			//   facingMode: {exact: 'user'}
 			//   }
-			  globalStream.getVideoTracks()[0].applyConstraints({facingMode: 'user'}).then(function (e) {
+			  globalStream.getVideoTracks()[0].applyConstraints({deviceId: cams[1].deviceId}).then(function (e) {
 			//   alert('Camera switched');
 			  alert(globalStream.getVideoTracks()[0].getSettings().facingMode);
 			  videoElement.srcObject = globalStream;
@@ -280,9 +298,17 @@ video {
 		OfferToReceiveAudio : false,
 		OfferToReceiveVideo : false
 	};
+
+	let video = {};
+	if(cams.length > 0) {
+		alert(cams[0].label);
+		video.deviceId = cams[0].deviceId;
+	} else {
+		video.facingMode = 'user';
+	}
 	
 	var mediaConstraints = {
-		video : {facingMode: 'environment'},
+		video,
 		audio : true
 	};
 
