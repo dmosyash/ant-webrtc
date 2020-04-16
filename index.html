@@ -211,6 +211,9 @@ video {
 			  }
 			  webRTCAdaptor.localStream.getVideoTracks()[0].applyConstraints(updatedConstraints).then(function () {
 			  alert('Camera switched');
+			  }, function(e) {
+				  console.log('error: ', e);
+				  alert(e.toString());
 			  });
   		}
   		else {
