@@ -210,7 +210,7 @@ video {
 			//   var updatedConstraints = {
 			//   facingMode: {exact: 'user'}
 			//   }
-			  globalStream.getVideoTracks()[0].applyConstraints({facingMode: 'environment'}).then(function () {
+			  globalStream.getVideoTracks()[0].applyConstraints({facingMode: {exact: 'environment'}}).then(function () {
 			  alert('Camera switched');
 			  }, function(e) {
 			  console.log('error: ', e);
