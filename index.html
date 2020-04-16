@@ -232,6 +232,7 @@ video {
 
 				mediaConstraints.video = {deviceId: cams[1].deviceId};
 				navigator.mediaDevices.getUserMedia(mediaConstraints).then(function(stream) {
+					alert(stream.getVideoTracks()[0]);
 				globalStream = stream;
 				videoElement.srcObject = stream;
 				}, function(e) {
