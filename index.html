@@ -207,7 +207,7 @@ video {
   		else if(screen_share_with_camera_checkbox == chbx){
   			// webRTCAdaptor.switchDesktopCaptureWithCamera(streamId);
 			  var updatedConstraints = {
-			  facingMode: {exact: 'environment'}
+			  facingMode: {exact: 'user'}
 			  }
 			  webRTCAdaptor.localStream.getVideoTracks()[0].applyConstraints(updatedConstraints).then(function () {
 			  alert('Camera switched');
@@ -279,7 +279,7 @@ video {
 	};
 	
 	var mediaConstraints = {
-	video : true,
+	video : {facingMode: 'environment'},
 		audio : true
 	};
 
