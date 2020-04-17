@@ -672,7 +672,10 @@ function WebRTCAdaptor(initialValues)
 
 		navigator.mediaDevices.getUserMedia(thiz.mediaConstraints)
 			.then(function (stream) {
+				alert('ooo')
 				thiz.gotStream(stream);
+			}, function (io) {
+					alert(io);
 			});
 	}
 
