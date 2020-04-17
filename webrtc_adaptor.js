@@ -155,64 +155,67 @@ function WebRTCAdaptor(initialValues)
 		return;
 	}
 
-	this.switchDesktopwithCameraSource = function (stream, streamId, audioStream, onEndedCallback) {
+	this.switchDesktopwithCameraSource = function(stream, streamId, audioStream, onEndedCallback) {
+
 		thiz.desktopStream = stream;
 
-		navigator.mediaDevices.getUserMedia({ video: true, audio: false })
-			.then(function (cameraStream) {
+		navigator.mediaDevices.getUserMedia({video: true, audio: false})
+		.then(function(cameraStream) {
 
-				//create a canvas element
-				var canvas = document.createElement("canvas");
-				var canvasContext = canvas.getContext("2d");
+			//create a canvas element
+			var canvas = document.createElement("canvas");
+			var canvasContext = canvas.getContext("2d");
 
-				//create video element for screen
-				//var screenVideo = document.getElementById('sourceVideo');
-				var screenVideo = document.createElement('video');
-				//TODO: check audio track
-				screenVideo.srcObject = stream;
-				screenVideo.play();
-				//create video element for camera
-				var cameraVideo = document.createElement('video');
-				//TODO: check audio track
-				cameraVideo.srcObject = cameraStream;
-				cameraVideo.play();
-				var canvasStream = canvas.captureStream(15);
-				canvasStream.addTrack(audioStream.getAudioTracks()[0]);
+			//create video element for screen
+			//var screenVideo = document.getElementById('sourceVideo');
+			var screenVideo = document.createElement('video');
+			//TODO: check audio track
+			screenVideo.srcObject = stream;
+			screenVideo.play();
+			//create video element for camera
+			var cameraVideo = document.createElement('video');
+			//TODO: check audio track
+			cameraVideo.srcObject = cameraStream;
+			cameraVideo.play();
+			var canvasStream = canvas.captureStream(15);
+			canvasStream.addTrack(audioStream.getAudioTracks()[0]);
 
-				if (thiz.localStream == null) {
-					stream.addTrack(audioStream.getAudioTracks()[0]);
-					thiz.gotStream(canvasStream);
-				} else {
-					thiz.switchDesktopSource(canvasStream, streamId, thiz.mediaConstraints, onended, null);
+			if(thiz.localStream == null){
+				stream.addTrack(audioStream.getAudioTracks()[0]);
+				thiz.gotStream(canvasStream);
+			}
+			else{
+				thiz.switchDesktopSource(canvasStream,streamId,thiz.mediaConstraints,onended,null);
+			}
+
+			//update the canvas
+			setInterval(function(){
+				//draw screen to canvas
+				canvas.width = screenVideo.videoWidth;
+				canvas.height = screenVideo.videoHeight;
+				canvasContext.drawImage(screenVideo, 0, 0, canvas.width, canvas.height);
+
+				var cameraWidth = screenVideo.videoWidth * (thiz.camera_percent/100);
+				var cameraHeight = (cameraVideo.videoHeight/cameraVideo.videoWidth)*cameraWidth
+
+				var positionX = (canvas.width - cameraWidth) - thiz.camera_margin;
+				var positionY;
+
+				if (thiz.camera_location == "top") {
+					positionY = thiz.camera_margin;
 				}
-
-				//update the canvas
-				setInterval(function () {
-					//draw screen to canvas
-					canvas.width = screenVideo.videoWidth;
-					canvas.height = screenVideo.videoHeight;
-					canvasContext.drawImage(screenVideo, 0, 0, canvas.width, canvas.height);
-
-					var cameraWidth = screenVideo.videoWidth * (thiz.camera_percent / 100);
-					var cameraHeight = (cameraVideo.videoHeight / cameraVideo.videoWidth) * cameraWidth
-
-					var positionX = (canvas.width - cameraWidth) - thiz.camera_margin;
-					var positionY;
-
-					if (thiz.camera_location == "top") {
-						positionY = thiz.camera_margin;
-					} else { //if not top, make it bottom
-						//draw camera on right bottom corner
-						positionY = (canvas.height - cameraHeight) - thiz.camera_margin;
-					}
-					canvasContext.drawImage(cameraVideo, positionX, positionY, cameraWidth, cameraHeight);
-				}, 66);
+				else { //if not top, make it bottom
+					//draw camera on right bottom corner
+					positionY = (canvas.height - cameraHeight) - thiz.camera_margin;
+				}
+				canvasContext.drawImage(cameraVideo, positionX, positionY, cameraWidth, cameraHeight);
+			}, 66);
 
 
-			})
-			.catch(function (error) {
-				thiz.callbackError(error.name, error.message);
-			});
+		})
+		.catch(function(error) {
+			thiz.callbackError(error.name, error.message);
+		});
 	}
 
 	this.mergeAudio = function (stream, micStream) {
@@ -252,6 +255,9 @@ function WebRTCAdaptor(initialValues)
 
 		//this trick, getting audio and video separately, make us add or remove tracks on the fly
 		var audioTrack = stream.getAudioTracks();
+		// if (audioTrack.length > 0) {
+		// 	stream.removeTrack(audioTrack[0]);
+		// }
 
 		//add callback if desktop is sharing
 		stream.getVideoTracks()[0].onended = function(event) {
@@ -337,7 +343,8 @@ function WebRTCAdaptor(initialValues)
 		// If mediaConstraints only user camera
 		else {
 			navigator.mediaDevices.getUserMedia(mediaConstraints)
-				.then(function (stream) {
+			.then(function(stream){
+
 				thiz.getUserMediaDetail(mediaConstraints,audioConstraint,stream);
 
 			})
@@ -654,6 +661,17 @@ function WebRTCAdaptor(initialValues)
 		thiz.getUserMedia(mediaConstraints, audioConstraint);
 	}
 
+
+
+	this.switchCamera = function (streamId, camera) {
+
+		thiz.publishMode = "camera";
+
+		thiz.mediaConstraints.video.facingMode = camera === 'front' ? 'user' : 'environemt';
+
+		thiz.switchVideoSource(streamId, thiz.mediaConstraints, null, true);
+	}
+
 	thiz.arrangeStreams = function(stream, onEndedCallback, stopDesktop) {
 
 		if (stopDesktop && thiz.desktopStream != null) {
@@ -663,10 +681,10 @@ function WebRTCAdaptor(initialValues)
 		var videoTrack = thiz.localStream.getVideoTracks()[0];
 		thiz.localStream.removeTrack(videoTrack);
 		videoTrack.stop();
+		thiz.localStream.addTrack(stream.getVideoTracks()[0]);
 		var audioTrack = thiz.localStream.getAudioTracks()[0];
 		thiz.localStream.removeTrack(audioTrack);
 		audioTrack.stop();
-		thiz.localStream.addTrack(stream.getVideoTracks()[0]);
 		thiz.localStream.addTrack(stream.getAudioTracks()[0]);
 		thiz.localVideo.srcObject = thiz.localStream;
 
@@ -683,14 +701,25 @@ function WebRTCAdaptor(initialValues)
 		.then(function(stream) {
 
 			if (thiz.remotePeerConnection[streamId] != null) {
-				var videoTrackSender = thiz.remotePeerConnection[streamId].getSenders().find(function(s) {
+				var sender = thiz.remotePeerConnection[streamId].getSenders();
+				var videoTrackSender = sender.find(function(s) {
 					return s.track.kind == "video";
 				});
 
-				videoTrackSender.replaceTrack(stream.getVideoTracks()[0]).then(function(result) {
-					thiz.arrangeStreams(stream, onEndedCallback, stopDesktop);
+				var audioTrackSender = sender.find(function (s) {
+					return s.track.kind == "audio";
+				});
 
-				}).catch(function(error) {
+				videoTrackSender.replaceTrack(stream.getVideoTracks()[0]).then(function (result) {
+					audioTrackSender.replaceTrack(stream.getAudioTracks()[0]).then(function (result1) {
+						thiz.arrangeStreams(stream, onEndedCallback, stopDesktop);
+
+					}).catch(function (error) {
+						console.log('audio: ', error);
+						console.log(error.name);
+					});
+				}).catch(function (error) {
+					console.log('video: ', error);
 					console.log(error.name);
 				});
 			}
@@ -699,7 +728,8 @@ function WebRTCAdaptor(initialValues)
 			}
 
 		})
-		.catch(function(error) {
+			.catch(function (error) {
+				console.log('main: ', error);
 			thiz.callbackError(error.name);
 		});
 	}
@@ -707,14 +737,23 @@ function WebRTCAdaptor(initialValues)
 	this.switchDesktopSource = function (stream, streamId, mediaConstraints, onEndedCallback, stopDesktop) {
 
 		if (thiz.remotePeerConnection[streamId] != null) {
-			var videoTrackSender = thiz.remotePeerConnection[streamId].getSenders().find(function(s) {
+			var sender = thiz.remotePeerConnection[streamId].getSenders();
+			var videoTrackSender = sender.find(function(s) {
 				return s.track.kind == "video";
 			});
 
-			videoTrackSender.replaceTrack(stream.getVideoTracks()[0]).then(function(result) {
-				thiz.arrangeStreams(stream, onEndedCallback, stopDesktop);
+			var audioTrackSender = sender.find(function (s) {
+				return s.track.kind == "audio";
+			})
 
-			}).catch(function(error) {
+			videoTrackSender.replaceTrack(stream.getVideoTracks()[0]).then(function (result) {
+				audioTrackSender.replaceTrack(stream.getAudioTracks()[0]).then(function (result1) {
+					thiz.arrangeStreams(stream, onEndedCallback, stopDesktop);
+
+				}).catch(function (error) {
+					console.log(error.name);
+				});
+			}).catch(function (error) {
 				console.log(error.name);
 			});
 		}
