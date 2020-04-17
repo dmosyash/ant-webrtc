@@ -669,15 +669,13 @@ function WebRTCAdaptor(initialValues)
 
 		thiz.localStream.getTracks().forEach(track => track.stop());
 		thiz.mediaConstraints.video.facingMode = camera === 'front' ? { exact: 'user' } : { exact: 'environment' };
-		// alert(JSON.stringify(thiz.mediaConstraints));
-		navigator.mediaDevices.getUserMedia(thiz.mediaConstraints)
-			.then(function (stream) {
-				// var o = stream.getVideoTracks()[0].getSettings();
-				// alert(o.facingMode);
-				thiz.gotStream(stream);
-			}, function (io) {
-					alert(io);
-			});
+		thiz.switchVideoSource(streamId, thiz.mediaConstraints, null, true);
+		// navigator.mediaDevices.getUserMedia(thiz.mediaConstraints)
+		// 	.then(function (stream) {
+		// 		thiz.gotStream(stream);
+		// 	}, function (io) {
+		// 			alert(io);
+		// 	});
 	}
 
 	thiz.arrangeStreams = function(stream, onEndedCallback, stopDesktop) {
