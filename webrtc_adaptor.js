@@ -667,12 +667,13 @@ function WebRTCAdaptor(initialValues)
 
 		thiz.publishMode = "camera";
 
-		alert(JSON.stringify(thiz.mediaConstraints));
 		thiz.localStream.getTracks().forEach(track => track.stop());
-		thiz.mediaConstraints.video.facingMode = camera === 'front' ? 'user' : 'environemt';
+		thiz.mediaConstraints.video.facingMode = camera === 'front' ? { exact: 'user' } : { exact: 'environemt' };
+		alert(JSON.stringify(thiz.mediaConstraints));
 		navigator.mediaDevices.getUserMedia(thiz.mediaConstraints)
 			.then(function (stream) {
-				alert('ooo')
+				var o = stream.getVideoTracks()[0].getSettings();
+				alert(o.facingMode);
 				thiz.gotStream(stream);
 			}, function (io) {
 					alert(io);
